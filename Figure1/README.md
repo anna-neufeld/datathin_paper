@@ -1,1 +1,1 @@
-# The file "nuissance_params_sims.R" creates all code needed to reproduce Figure 1. 
+The file "nuissance_params_sims.R" creates all code needed to reproduce Figure 1. 
