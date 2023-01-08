@@ -1,3 +1,4 @@
+#### Computes SSE between matrix (dat) and its rank-K approximation. 
 reconstructionError <- function(dat, this.svd, k) {
   if (k==1) {
     approx <- this.svd$u[,1:k, drop='F']%*%(this.svd$d[1:k])%*%t(this.svd$v[,1:k, drop='F'])
@@ -8,18 +9,20 @@ reconstructionError <- function(dat, this.svd, k) {
 }
 
 
-#### Setup that is shared by both. 
 library(Seurat)
 library(countsplit)
 library(ggplot2)
 library(patchwork)
 library(mclust)
 
+
+#### The data from 10X genomics was previously downloaded and included in the countsplit R package. 
 data(pbmc.counts, package="countsplit")
+#### This is necessary to avoid later errors in preprocessing. 
 rownames(pbmc.counts) <- sapply(rownames(pbmc.counts), function(u) stringr::str_replace_all(u, "_","-"))
 
 
-#### NAIVE METHOD
+#### Reproduce the analysis from the Seurat Guided Clustering tutorial. 
 pbmc <- CreateSeuratObject(counts = pbmc.counts, min.cells = 3, min.features = 200)
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
@@ -30,15 +33,15 @@ pbmc <- ScaleData(pbmc,features = all.genes)
 all_var_genes <- VariableFeatures(pbmc)
 X_preproc <- GetAssayData(pbmc, slot="scale.data")[all_var_genes,]
 
+#### The two equivalent formations of the error. 
 full.svd <- svd(t(as.matrix(X_preproc)))
 res.naive <- sapply(1:20, function(u) reconstructionError(t(X_preproc), full.svd,u))
 res.naive2 <- sapply(1:20, function(u) var(full.svd$u[,u]*full.svd$d[u]))
 
 
-
-#### COUNT SPLIT
+#### Redoing the analysis via data thinning. 
 set.seed(1)
-split <- countsplit(pbmc.counts, epsilon=0.8)
+split <- countsplit(pbmc.counts, epsilon=0.5)
 Xtrain <- split$train
 Xtest <- split$test
 
