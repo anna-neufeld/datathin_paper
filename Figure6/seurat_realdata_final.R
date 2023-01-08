@@ -33,7 +33,7 @@ pbmc <- ScaleData(pbmc,features = all.genes)
 all_var_genes <- VariableFeatures(pbmc)
 X_preproc <- GetAssayData(pbmc, slot="scale.data")[all_var_genes,]
 
-#### The two equivalent formations of the error. 
+#### The two equivalent formations of the error using the "naive" method. 
 full.svd <- svd(t(as.matrix(X_preproc)))
 res.naive <- sapply(1:20, function(u) reconstructionError(t(X_preproc), full.svd,u))
 res.naive2 <- sapply(1:20, function(u) var(full.svd$u[,u]*full.svd$d[u]))
@@ -56,18 +56,17 @@ pbmc.train <- ScaleData(pbmc.train,features = all.genes.train)
 var_genes <- VariableFeatures(pbmc.train)
 Xtrain_preproc <- GetAssayData(pbmc.train, slot="scale.data")[var_genes,]
 
-### Set up the test set object. 
+### Set up the test set object.  We need to make sure that the rows/columns match those of the 
+## training set. We do not do additional filtering on the test set cells. 
 rows <- rownames(pbmc.train)
 cols <- colnames(pbmc.train)
 Xtestsubset <- Xtest[rows,cols]
 pbmc.test <- CreateSeuratObject(counts = Xtestsubset, min.cells = 0, min.features = 0)
-### This divides by TEST SET totals and I sort of wish it divided by TRAINING SET totals.
-### We can discuss I guess. 
-### This is gonna get wonky for multiple folds. 
 pbmc.test <- NormalizeData(pbmc.test)
 pbmc.test <- ScaleData(pbmc.test,features = all.genes.train)
 Xtest_preproc <- GetAssayData(pbmc.test, slot="scale.data")[var_genes,]
 
+### Recontruction set error between TRAINING SET svd and TEST SET counts. 
 train.svd <- svd(t(as.matrix(Xtrain_preproc)))
 SSEs_cs <- sapply(1:20, function(u) reconstructionError(t(Xtest_preproc), train.svd,u))
 
@@ -81,12 +80,13 @@ p13 <- ggplot(data=NULL, aes(x=1:20, y=sapply(1:20, function(u) sd(full.svd$u[,u
 
 
 p21 <- ggplot(data=NULL, aes(x=1:20, y=SSEs_cs))+geom_point()+theme_bw()+xlab("# of PCs (k)")+ylab("Sum of squared errors (SSE)")+
-  ggtitle("(c) SSE, data thinning")
+  ggtitle("(c) SSE, data thinning")#+scale_y_log10()
 
 p13+p11+
   p21+
   plot_layout(nrow=1, byrow=TRUE)
   #plot_annotation(tag_level="a")
+
 ggsave("~/Dropbox/Generalized Count Splitting/Figures/seuratplot.png", width=10, height=4)
 
 
