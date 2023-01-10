@@ -1,0 +1,1 @@
+The file "GammaSimPlot.R" contains the code needed to reproduce Figure 1. 
