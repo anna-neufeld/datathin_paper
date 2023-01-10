@@ -72,10 +72,10 @@ SSEs_cs <- sapply(1:20, function(u) reconstructionError(t(Xtest_preproc), train.
 
 
 p11 <- ggplot(data=NULL, aes(x=1:20, y=res.naive))+geom_point()+theme_bw()+xlab("# of PCs (K)")+ylab("Sum of squared errors (SSE)")+
-  ggtitle(expression("(a) SSE, computed on"~tilde(Y))) 
+  ggtitle(expression("(b) SSE, computed on"~tilde(Y))) 
 
 p13 <- ggplot(data=NULL, aes(x=1:20, y=sapply(1:20, function(u) sd(full.svd$u[,u]*full.svd$d[u]))))+geom_point()+theme_bw()+xlab("# of PCs (K)")+ylab("Standard deviation")+
-  ggtitle(expression("(b) SD of PCs, computed on"~tilde(Y)))
+  ggtitle(expression("(a) SD of PCs, computed on"~tilde(Y)))
 
 
 
