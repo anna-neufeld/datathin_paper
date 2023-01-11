@@ -61,6 +61,46 @@ recon.nll <- function(dat, lpsvd, N, k) {
   return(sum(-dbinom(dat, N, plogis(approx), log=TRUE)))
 }
 
+## Compute the Gamma clustering MSE loss
+GCSMSE <- function(km, testdat, epsilon) {
+  cent <- km$centers * (1-epsilon)/epsilon
+  labels <- km$cluster
+  mse <- 0
+  for (i in 1:nrow(testdat)) {
+    mse <- mse + as.matrix(dist(rbind(testdat[i,], cent[labels[i],])))[1,2]^2
+  }
+  
+  return(mse/(nrow(testdat)))
+}
+
+## Compute the Gamma clustering NLL loss
+gammaNLL3 <- function(km, traindat, testdat, method, epsilon) {
+  ests <- bind_cols(
+    data.frame(cluster=km$cluster),
+    as.data.frame(traindat)
+  ) %>%
+    pivot_longer(-cluster, names_to="dim") %>%
+    group_by(cluster, dim) %>% 
+    summarise(N=n(),
+              scale=ifelse(N == 1, 1/value, mean(value*log(value))-mean(value)*mean(log(value))), 
+              shape=ifelse(N == 1, 1, mean(value)/scale)) %>%
+    mutate(scale = ifelse(N > 2, (N/(N-1))*scale, scale),
+           shape = ifelse(N > 2, shape - (1/N)*(3*shape - (2/3)*(shape/(1+shape)) - (4/5)*(shape/((1+shape)^2))), shape)) %>% 
+    mutate(rate = 1/scale) %>%
+    select(-N, -scale)
+  
+  bind_cols(
+    data.frame(cluster=km$cluster),
+    as.data.frame(testdat)
+  ) %>% 
+    pivot_longer(-cluster, names_to="dim") %>% 
+    left_join(ests, by=c("cluster", "dim")) %>% 
+    mutate(nll = -dgamma(value, shape=shape*(1-epsilon)/epsilon, rate=rate, log=TRUE)) %>% 
+    filter(!is.infinite(nll)) %>%
+    summarise(nll = sum(nll)) %>%
+    pull
+}
+
 # Set the number of simulations
 nreps <- 2000
 
@@ -80,7 +120,7 @@ sval <- 14:5
 
 allEps <- seq(0,1, length.out=51)[2:50]
 results_binom <- matrix(0, nrow=2*nreps*length(allEps)*maxPC, ncol=5)
-
+colnames(results_binom ) <- c("eps", "sim", "measure", "k", "value")
 
 ## Run the simulations 
 counter <- 1
@@ -121,6 +161,8 @@ for (i in 1:nreps) {
 
 ## Summarise binomial simulation results
 consRes_binom <- results_binom %>% 
+  as.data.frame() %>%
+  mutate(eps = as.numeric(eps)) %>%
   group_by(sim, eps, measure) %>%
   summarize(minK = which.min(value)) %>% 
   group_by(eps,measure) %>% 
@@ -146,6 +188,7 @@ maxk <- 10
 allEps <- seq(0,1, length.out=52)[2:51]
 
 results_gammasmall <- matrix(0, nrow=2*nreps*length(allEps)*maxk, ncol=6)
+colnames(results_gammasmall) <- c("eps", "sim", "method", "measure", "k", "value")
 
 ## Run the simulations 
 counter <- 1
@@ -171,9 +214,10 @@ for (trial in 1:nreps) {
 
 ## Summarise small gamma simulation results
 consRes_gammasmall <- results_gammasmall %>% 
+  as.data.frame() %>% 
+  mutate(eps = as.numeric(eps)) %>%
   group_by(sim, eps, method, measure) %>%
-  summarize(minK = which.min(value),
-            bestRand = which.max(rand)) %>% 
+  summarize(minK = which.min(value)) %>% 
   group_by(eps, method, measure) %>% 
   summarize(propCorrect = mean(minK==4))
 
@@ -205,6 +249,7 @@ maxk <- 10
 allEps <- seq(0,1, length.out=52)[2:51]
 
 results_gammalarge <- matrix(0, nrow=2*nreps*length(allEps)*maxk, ncol=6)
+colnames(results_gammalarge) <- c("eps", "sim", "method", "measure", "k", "value")
 
 ## Run the simulations 
 counter <- 1
@@ -230,12 +275,12 @@ for (trial in 1:nreps) {
 
 ## Summarise large gamma simulation results
 consRes_gammalarge <- results_gammalarge %>% 
+  as.data.frame() %>%
+  mutate(eps = as.numeric(eps)) %>%
   group_by(sim, eps, method, measure) %>%
-  summarize(minK = which.min(value),
-            bestRand = which.max(rand)) %>% 
+  summarize(minK = which.min(value)) %>% 
   group_by(eps, method, measure) %>% 
-  summarize(propCorrect = mean(minK==10), 
-            bestRand = mean(bestRand==10))
+  summarize(propCorrect = mean(minK==10)) 
 
 
 
