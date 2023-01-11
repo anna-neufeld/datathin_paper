@@ -245,7 +245,7 @@ theta <- matrix(rep(c(c(rep(0.1,20), rep(1,80)),
                        c(rep(1,100))),
                      n), nrow=n*ncluster, ncol=d, byrow=TRUE)
 
-maxk <- 10
+maxk <- 15
 allEps <- seq(0,1, length.out=52)[2:51]
 
 results_gammalarge <- matrix(0, nrow=2*nreps*length(allEps)*maxk, ncol=6)
