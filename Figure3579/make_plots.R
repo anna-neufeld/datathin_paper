@@ -1,10 +1,10 @@
 library(tidyverse)
 library(patchwork)
-setwd("~/Dropbox/DataThin/resAD/res")
+setwd("~/datathin_paper/Figure3579/resAD/res")
 
 
 #### READ IN SMALL GAMMA RES. 
-file_names <- dir("~/Dropbox/DataThin/resAD/res", pattern="dec16_gammasmall") #where you have your files
+file_names <- dir('.', pattern="dec16_gammasmall") #where you have your files
 
 results_gammasmall <- read.csv(file_names[1], sep="", header=FALSE)
 print(nrow(results_gammasmall))
@@ -20,7 +20,7 @@ for (f in file_names[-1]) {
 }
 
 #### READ IN GAMMA LARGE
-file_names <- dir("~/Dropbox/DataThin/resAD/res", pattern="dec15_gammabig") #where you have your files
+file_names <- dir(".", pattern="dec15_gammabig") #where you have your files
 
 results_gammalarge <- read.csv(file_names[1], sep="", header=FALSE)
 print(nrow(results_gammalarge))
@@ -37,7 +37,7 @@ for (f in file_names[-1]) {
 
 
 #### READ IN BINOM
-file_names <- dir("~/Dropbox/DataThin/resAD/res", pattern="dec15_bin") #where you have your files
+file_names <- dir(".", pattern="dec15_bin") #where you have your files
 
 results_binom <- read.csv(file_names[1], sep="", header=FALSE)
 print(nrow(results_binom))
@@ -103,9 +103,6 @@ pbinom <- ggplot(data=consRes_binom %>% filter(measure=="NLL"), aes(x=eps, y=pro
   ggtitle("Binomial PCA")
 
 
-pbinom+pgamma_small+pgamma_large & theme(axis.text = element_text(size=14), axis.title=element_text(size=16))
-ggsave("~/Dropbox/Generalized Count Splitting/JMLR-resubmit-sep-2023/Figures/role_of_eps2.pdf", width=13, height=4.5, device="pdf", dpi=600)
-
 pgamma_small2 <- ggplot(data=consRes_gammasmall %>% filter(measure=="MSE"), aes(x=eps, y=propCorrect))+geom_point()+geom_line()+
   ggtitle("Proportion of times we select correct K")+
   theme_bw()+
@@ -127,8 +124,6 @@ pbinom2 <- ggplot(data=consRes_binom %>% filter(measure=="RealMSE"), aes(x=eps, 
   ggtitle("Binomial PCA")
 
 
-pbinom2+pgamma_small2+pgamma_large2
-ggsave("~/Dropbox/Ameer-Daniela Fall 2022/Generalized Count Splitting/Figures/role_of_eps3.pdf", width=13, height=4.5, device="pdf", dpi=600)
 
 
 #### READ IN ALL METHODS RESULTS. 
@@ -224,8 +219,6 @@ pvalNLL <- results_all %>%
   theme_bw() +
   coord_cartesian(ylim=c(0,0.25))
 
-pvalNLL
-ggsave("../../../Ameer-Daniela Fall 2022/Generalized Count Splitting/Figures/NLLcurves.pdf", width=13, height=4.5, device="pdf", dpi=600)
 
 pvalMSE <- results_all %>%
   filter(measure == "MSE") %>%
@@ -257,8 +250,6 @@ pvalMSE <- results_all %>%
   theme_bw() +
   coord_cartesian(ylim=c(0,0.25))
 
-pvalMSE
-ggsave("../../../Ameer-Daniela Fall 2022/Generalized Count Splitting/Figures/MSEcurves.pdf", width=13, height=4.5, device="pdf", dpi=600)
 
 errdat <-  results_all %>% 
   filter(measure == "NLL") %>%
@@ -304,8 +295,6 @@ phistNLL <- results_all %>%
   theme_bw()
 
 
-phistNLL
-ggsave("~/Dropbox/Ameer-Daniela Fall 2022/Generalized Count Splitting/Figures/NLLhist.pdf", width=13, height=4.5, device="pdf", dpi=600)
 
 phistMSE <- results_all %>% 
   filter(measure == "MSE") %>%
@@ -337,5 +326,34 @@ phistMSE <- results_all %>%
   theme(legend.position = "right") +
   theme_bw()
 
-phistMSE
-ggsave("~/Dropbox/Ameer-Daniela Fall 2022/Generalized Count Splitting/Figures/MSEhist.pdf", width=13, height=4.5, device="pdf", dpi=600)
+
+
+###### SAVE THE ACTUAL FINAL PLOTS
+setwd("~/Dropbox/Generalized Count Splitting/JMLR-resubmit-sep-2023/Figures"
+      )
+pvalNLL
+ggsave("NLLcurves.pdf", width=15, height=5, device="pdf", dpi=600) & 
+  theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16), legend.text=element_text(size=16),
+        strip.text=element_text(size=16))
+
+pvalMSE
+ggsave("MSEcurves.pdf", width=15, height=5, device="pdf", dpi=600) & 
+  theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16), legend.text=element_text(size=16),
+        strip.text=element_text(size=16))
+
+
+pbinom+pgamma_small+pgamma_large &  xlab(expression(epsilon^{(train)})) & theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16))
+ggsave("role_of_eps2.pdf", width=15, height=5, device="pdf", dpi=600) 
+
+pbinom2+pgamma_small2+pgamma_large2 & xlab(expression(epsilon^{(train)})) & theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16))
+ggsave("role_of_eps3.pdf", width=15, height=5, device="pdf", dpi=600)
+
+phistMSE + theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16))
+ggsave("MSEhist.pdf", width=13, height=4.5, device="pdf", dpi=600)
+
+phistNLL + theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16))
+ggsave("NLLhist.pdf", width=13, height=4.5, device="pdf", dpi=600)
+
+
+
+
