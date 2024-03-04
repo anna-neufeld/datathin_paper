@@ -1,7 +1,5 @@
-# datathin_paper
+The file "make_plots.R" reads in saved results from the folder "resAD" and generates figures 3,5,7, and 9 in the paper.
 
-Code to reproduce all figures from Neufeld, Dharamshi, Gao, and Witten (2024), which will appear in JMLR.  
+The code to generate the results in the folder "resAD" are found in the files "run_gamma_eps_big.R", "run_gamma_eps_small.R", and "run_binomial_eps.R". Helper functions for these files are stored in "GCS_evalfuns.R" and "GCS_splitfuns.R". 
 
-There is one folder corresponding to each figure from the paper, each with its own README file. 
-
-This material is based upon research supported in part by the Office of Naval Research under Award Number N000142312589 and the National Science Foundation under Award Number 2322920.
+All other files (the .sh) files were used to run the simulations on a cluster, and may need to be updated to run the code locally or on different cluster systems. 
