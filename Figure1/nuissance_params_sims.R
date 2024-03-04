@@ -67,6 +67,7 @@ for (tildeSigma in tildeSigmas) {
   varXtestNormal[c] <- var(Xtest)
   c <- c+1
 }
+ep <- 0.44
 trueCorsNormal <- sapply(tildeSigmas, function(u) exactCorExpression_normal(ep, sigma, u))
 
 
@@ -137,6 +138,8 @@ pGamma <- ggplot(data=NULL, aes(x=tildeAlphas, y=corsGamma, col="Empirical"))+
   ggtitle("Gamma Distribution")
 
 pNormal+pNB+pGamma+plot_layout(guides="collect") & 
-  theme_bw() & ylim(-1,1)
-setwd("~/Dropbox/Generalized Count Splitting/")
-ggsave("Figures/corPlot.png", width=12, height=4)
+  theme_bw() & ylim(-1,1) &
+  theme(axis.title=element_text(size=16), axis.text=element_text(size=14), plot.title=element_text(size=16), 
+        legend.text=element_text(size=14))
+setwd("~/Dropbox/Generalized Count Splitting/JMLR-resubmit-sep-2023-v2/Figures/")
+ggsave("Figures/corPlot.png", width=13, height=4)
