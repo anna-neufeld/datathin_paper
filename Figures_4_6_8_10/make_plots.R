@@ -1,6 +1,6 @@
 library(tidyverse)
 library(patchwork)
-setwd("~/datathin_paper/Figure3579/resAD/res")
+setwd("~/datathin_paper/Figures_4_6_8_10/resAD/res")
 
 
 #### READ IN SMALL GAMMA RES. 
@@ -65,7 +65,7 @@ consRes_gammasmall <- consRes_gammasmall_pre %>% group_by(eps, method, measure) 
 pgamma_small <- ggplot(data=consRes_gammasmall %>% filter(measure=="NLL"), aes(x=eps, y=propCorrect))+geom_point()+geom_line()+
  ggtitle("Proportion of times we select correct K")+
   theme_bw()+
-  xlab(expression(epsilon))+ylab("Proportion of datasets for which we selected K=4")+
+  xlab(expression(epsilon))+ylab("Proportion of simulated datasets with correct K")+
   ylim(c(0,1)) +
   ggtitle("Gamma Clustering - Small")
 
@@ -83,7 +83,7 @@ consRes_gammalarge <- consRes_gammalarge_pre %>% group_by(eps, method, measure) 
 pgamma_large <- ggplot(data=consRes_gammalarge %>% filter(measure=="NLL"), aes(x=eps, y=propCorrect))+geom_point()+geom_line()+
   ggtitle("Proportion of times we select correct K")+
   theme_bw()+
-  xlab(expression(epsilon))+ylab("Proportion of datasets for which we selected K=10")+
+  xlab(expression(epsilon))+ylab("Proportion of simulated datasets with correct K")+
   ylim(c(0,1)) +
   ggtitle("Gamma Clustering - Large")
 
@@ -98,7 +98,7 @@ consRes_binom <- consRes_binom_pre %>% group_by(eps,measure) %>%
 
 pbinom <- ggplot(data=consRes_binom %>% filter(measure=="NLL"), aes(x=eps, y=propCorrect))+geom_point()+geom_line()+
   theme_bw()+
-  xlab(expression(epsilon^{(train)}))+ylab("Proportion of datasets for which we selected K=10")+
+  xlab(expression(epsilon^{(train)}))+ylab("Proportion of simulated datasets with correct K")+
   ylim(c(0,1)) +
   ggtitle("Binomial PCA")
 
@@ -106,20 +106,20 @@ pbinom <- ggplot(data=consRes_binom %>% filter(measure=="NLL"), aes(x=eps, y=pro
 pgamma_small2 <- ggplot(data=consRes_gammasmall %>% filter(measure=="MSE"), aes(x=eps, y=propCorrect))+geom_point()+geom_line()+
   ggtitle("Proportion of times we select correct K")+
   theme_bw()+
-  xlab(expression(epsilon))+ylab("Proportion of datasets for which we selected K=4")+
+  xlab(expression(epsilon))+ylab("Proportion of simulated datasets with correct K")+
   ylim(c(0,1)) +
   ggtitle("Gamma Clustering - Small")
 
 pgamma_large2 <- ggplot(data=consRes_gammalarge %>% filter(measure=="MSE"), aes(x=eps, y=propCorrect))+geom_point()+geom_line()+
   ggtitle("Proportion of times we select correct K")+
   theme_bw()+
-  xlab(expression(epsilon))+ylab("Proportion of datasets for which we selected K=10")+
+  xlab(expression(epsilon))+ylab("Proportion of simulated datasets with correct K")+
   ylim(c(0,1)) +
   ggtitle("Gamma Clustering - Large")
 
 pbinom2 <- ggplot(data=consRes_binom %>% filter(measure=="RealMSE"), aes(x=eps, y=propCorrect))+geom_point()+geom_line()+
   theme_bw()+
-  xlab(expression(epsilon))+ylab("Proportion of datasets for which we selected K=10")+
+  xlab(expression(epsilon))+ylab("Proportion of simulated datasets with correct K")+
   ylim(c(0,1)) +
   ggtitle("Binomial PCA")
 
@@ -329,30 +329,35 @@ phistMSE <- results_all %>%
 
 
 ###### SAVE THE ACTUAL FINAL PLOTS
-setwd("~/Dropbox/Generalized Count Splitting/JMLR-resubmit-sep-2023/Figures"
+setwd("~/Dropbox/Generalized Count Splitting/JMLR-resubmit-sep-2023-v2/Figures"
       )
-pvalNLL
-ggsave("NLLcurves.pdf", width=15, height=5, device="pdf", dpi=600) & 
-  theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16), legend.text=element_text(size=16),
-        strip.text=element_text(size=16))
+pvalNLL& 
+  theme(axis.text = element_text(size=14), axis.title.x=element_text(size=20), axis.title.y=element_text(size=20), plot.title=element_text(size=16), legend.text=element_text(size=16),
+        strip.text=element_text(size=16)) & ylab("Normalized NLL Loss")
+ggsave("NLLcurves.png", width=12, height=4,  dpi=600) 
 
-pvalMSE
-ggsave("MSEcurves.pdf", width=15, height=5, device="pdf", dpi=600) & 
-  theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16), legend.text=element_text(size=16),
-        strip.text=element_text(size=16))
+pvalMSE& 
+  theme(axis.text = element_text(size=14), axis.title.x=element_text(size=20), plot.title=element_text(size=16), axis.title.y=element_text(size=20), legend.text=element_text(size=16),
+        strip.text=element_text(size=16)) & ylab("Normalized MSE Loss")
+ggsave("MSEcurves.png", width=12, height=4,  dpi=600) 
 
 
-pbinom+pgamma_small+pgamma_large &  xlab(expression(epsilon^{(train)})) & theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16))
-ggsave("role_of_eps2.pdf", width=15, height=5, device="pdf", dpi=600) 
+pbinom+pgamma_small+pgamma_large & 
+  xlab(expression(epsilon^{(train)})) & theme(axis.text = element_text(size=14), axis.title.y=element_text(size=14), axis.title.x=element_text(size=20), plot.title=element_text(size=16))
+ggsave("role_of_eps2.png", width=12, height=5,  dpi=600) 
 
-pbinom2+pgamma_small2+pgamma_large2 & xlab(expression(epsilon^{(train)})) & theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16))
-ggsave("role_of_eps3.pdf", width=15, height=5, device="pdf", dpi=600)
+pbinom2+pgamma_small2+pgamma_large2 & xlab(expression(epsilon^{(train)})) & theme(axis.text = element_text(size=14), axis.title.y=element_text(size=14), axis.title.x=element_text(size=20), plot.title=element_text(size=16))
+ggsave("role_of_eps3.png", width=12, height=5,  dpi=600)
 
-phistMSE + theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16))
-ggsave("MSEhist.pdf", width=13, height=4.5, device="pdf", dpi=600)
+phistMSE + theme(axis.text = element_text(size=14), axis.title.x=element_text(size=20), axis.title.y=element_text(size=16), plot.title=element_text(size=16),
+                 strip.text=element_text(size=16), legend.text=element_text(size=16))&ylab("Proportion of simulated datasets")
+ggsave("MSEhist.png", width=12, height=4,  dpi=600)
 
-phistNLL + theme(axis.text = element_text(size=14), axis.title=element_text(size=16), plot.title=element_text(size=16))
-ggsave("NLLhist.pdf", width=13, height=4.5, device="pdf", dpi=600)
+phistNLL + 
+  theme(axis.text = element_text(size=14), axis.title.x=element_text(size=20), axis.title.y=element_text(size=16), plot.title=element_text(size=16), 
+        strip.text=element_text(size=16), legend.text=element_text(size=16)) & ylab("Proportion of simulated datasets")
+
+ggsave("NLLhist.png", width=12, height=4,  dpi=600)
 
 
 
